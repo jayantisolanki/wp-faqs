@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: WP FAQ
- * Plugin URI: http://www.pour-le-web.com/
- * Description: Plugin for customizing the administration of your wordpress site: taskbar, login page footer administration, custom message in the dashboard, etc.
+ * Plugin Name: WP FAQs
+ * Plugin URI: http://www.jayantisolanki.com/projects/plugins/wp-faqs.zip
+ * Description: WP FAQ provides an simple way to add FAQ to your website.
  * Version: 1.1
  * Author: Jayanti Solanki
  * Author URI:  http://www.jayantisolanki.com
  * License: GPL2 license
  */
-defined('ABSPATH') or die("No script kiddies please!");
+defined('ABSPATH') or die("No script please!");
 
 function override_template( $page_template )
 {
@@ -34,8 +34,8 @@ $labels = array(
    'new_item' => __('New FAQ'),
    'view_item' => __('See FAQ'),
    'search_items' => __('Search FAQs'),
-   'not_found' =>  __('No Found FAQ'),
-   'not_found_in_trash' => __('no FAQs in the basket'),
+   'not_found' =>  __('No FAQs found'),
+   'not_found_in_trash' => __('No FAQs found in the Trash'),
    'parent_item_colon' => ''
  );
 $args = array(
@@ -72,8 +72,11 @@ add_filter('enter_title_here', 'my_custom_enter_title_here');
 
 function faq_shortcode( $atts, $content = null) {
   ?>
-  <script type="text/javascript">
-  	
+  <style type="text/css">
+  	.faqAccordion { clear:both}
+	.accTrigger {border-bottom:2px solid #eee; padding:10px 0; cursor:pointer}
+  </style>
+  <script type="text/javascript">  	
     jQuery(document).ready(function() {
 		if( jQuery(".faqAccordion").length){
 		   var acDetail = jQuery('.faqAccordion .accordDetail');
@@ -84,9 +87,9 @@ function faq_shortcode( $atts, $content = null) {
 				   jQuery(this).removeClass('active');
 				   jQuery(this).next().slideUp();
 			  } else {
-				   acTrigger.removeClass('active');
+				   //acTrigger.removeClass('active');
 				   jQuery(this).addClass('active');
-				   acDetail.slideUp();
+				   //acDetail.slideUp();
 				   jQuery(this).next().slideDown();
 			  }
 			  return false;
@@ -101,11 +104,9 @@ function faq_shortcode( $atts, $content = null) {
     ) 
   );
   if($content==null || $content==''){
-    $content='<h2><div>FAQ No display</div>';
+    $content= 'No FAQs. Please add some FAQs';
   }
-  
 // magic comes here
-
   $type = 'wp_faq';
   $args=array(
     'post_type' => $type,
@@ -115,26 +116,23 @@ function faq_shortcode( $atts, $content = null) {
     'orderby' => 'date',
     'order'   => $trie
     );
-  $my_query = null;
-  $my_query = new WP_Query($args);
-  if( $my_query->have_posts() ) { ?>
+  $myQuery = null;
+  $myQuery = new WP_Query($args);
+  if( $myQuery->have_posts() ) { ?>
   <div class="faqAccordion">
   <?php 
-    while ($my_query->have_posts()) : $my_query->the_post(); ?>
+    while ($myQuery->have_posts()) : $myQuery->the_post(); ?>
       <h3 class="accTrigger"><?php the_title(); ?></h3>
       <div class="accordDetail"><?php the_content();?></div>      
       <?php 
     endwhile;
-  }
+  } else {
+	  echo 'No FAQs. Please add some FAQs';
+	  }
   ?>
   </div>
   <?php
   wp_reset_query();  // Global Restore post data stomped by the_post ().
-
-
 }
 add_shortcode('wp_faq', 'faq_shortcode');
-
-
-
 ?>
